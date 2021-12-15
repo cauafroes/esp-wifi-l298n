@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>WebSocket Test</title>
+<script language="javascript" type="text/javascript" src="joy.js"></script>
+<style>
+    *{
+        margin: 0px;
+    }
+    body{
+        margin: 0px;
+        background-color: black;
+    }
+</style>
+
+    <body>
+        <div id="joy2Div" style="width:50%;height:100%;position:fixed;left: 0%;"></div>
+            <div style="position:fixed;">
+            </div>			
+        </div>
+
+        <div id="joy3Div" style="width:50%;height:100%;position:fixed;right: 0%;"></div>
+            <div style="position:fixed;">
+            </div>			
+        </div>
+    </body>
+
+<script type="text/javascript"> 
+
+    var joy2Param = { "title": "joystick2" , "axis": "y", "internalFillColor": " #0000FF", "externalStrokeColor": "#0000FF", "internalStrokeColor": "#00BFFF"};
+    var Joy2 = new JoyStick('joy2Div', joy2Param);
+
+    var joy3Param = { "title": "joystick3" , "axis": "x", "internalFillColor": " #0000FF", "externalStrokeColor": "#0000FF", "internalStrokeColor": "#00BFFF"};
+    var Joy3 = new JoyStick('joy3Div', joy3Param);
+
+</script>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<meta name="viewport" 
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>WebSocket Test</title>
+<script language="javascript" type="text/javascript" src="joy.js"></script>
+<style>
+    body{
+        background-color: black;
+        margin: 0px;
+    }
+    #joy2Div
+    {
+        position: fixed;
+    margin-top: 10%;
+    margin-left: 5%;
+	width:200px;
+	height:200px;
+    }
+    #joy3Div
+    {
+        position: fixed;
+    margin-top: 10%;
+    margin-right: 5%;
+	width:200px;
+	height:200px;
+    right: 0%;
+    }
+</style>
+<script language="javascript" type="text/javascript">
+
+var url = "ws://192.168.4.1:1337/";
+var output;
+//var button;
+var canvas;
+var context;
+
+// This is called when the page finishes loading
+function init() {
+
+    // Assign page elements to variables
+    //button = document.getElementById("toggleButton");
+   // output = document.getElementById("output");
+    //canvas = document.getElementById("led");
+    
+    // Draw circle in canvas
+    // context = canvas.getContext("2d");
+    // context.arc(25, 25, 15, 0, Math.PI * 2, false);
+    // context.lineWidth = 3;
+    // context.strokeStyle = "black";
+    // context.stroke();
+    // context.fillStyle = "black";
+    // context.fill();
+    
+    // Connect to WebSocket server
+    wsConnect(url);
+}
+
+// Call this to connect to the WebSocket server
+function wsConnect(url) {
+    
+    // Connect to WebSocket server
+    websocket = new WebSocket(url);
+    
+    // Assign callbacks
+    websocket.onopen = function(evt) { onOpen(evt) };
+    websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+}
+
+// Called when a WebSocket connection is established with the server
+function onOpen(evt) {
+
+    // Log connection state
+    console.log("Connected");
+    
+    // Enable button
+    //button.disabled = false;
+    
+    // Get the current state of the LED
+    //doSend("getLEDState");
+}
+
+// Called when the WebSocket connection is closed
+function onClose(evt) {
+
+    // Log disconnection state
+    console.log("Disconnected");
+    
+    // Disable button
+    //button.disabled = true;
+    
+    // Try to reconnect after a few seconds
+    setTimeout(function() { wsConnect(url) }, 2000);
+}
+
+// Called when a message is received from the server
+function onMessage(evt) {
+
+    // Print out our received message
+    console.log("Received: " + evt.data);
+    
+    //  Update circle graphic with LED state
+    // switch(evt.data) {
+    //     case "0":
+    //         console.log("LED is off");
+    //         context.fillStyle = "black";
+    //         context.fill();
+    //         break;
+    //     case "1":
+    //         console.log("LED is on");
+    //         context.fillStyle = "red";
+    //         context.fill();
+    //         break;
+    //     default:
+    //         break;
+    // }
+}
+
+// Called when a WebSocket error occurs
+function onError(evt) {
+    console.log("ERROR: " + evt.data);
+}
+
+// Sends a message to the server (and prints it to the console)
+function doSend(message) {
+    console.log("Sending: " + message);
+    websocket.send(message);
+}
+
+// Called whenever the HTML button is pressed
+function onPress() {
+    //doSend(Joy3.GetX);
+    // doSend("getLEDState");
+}
+
+// Call the init function as soon as the page loads
+window.addEventListener("load", init, false);
+
+</script>
+    <!-- <tr>
+        <td><button id="toggleButton" onclick="onPress()" disabled>button</button></td>
+        <td><canvas id="led" width="50" height="50"></canvas></td>
+    </tr> -->
+    
+    <body>
+        <div id="joy2Div"></div>	
+        </div>
+
+        <div id="joy3Div"></div>
+        </div>
+    </body>
+
+<script type="text/javascript"> 
+
+    var joy2Param = { "title": "joystick2" , "axis": "y", "internalFillColor": " #0000FF", "externalStrokeColor": "#0000FF", "internalStrokeColor": "#00BFFF"};
+    var Joy2 = new JoyStick('joy2Div', joy2Param);
+
+    var joy3Param = { "title": "joystick3" , "axis": "x", "internalFillColor": " #0000FF", "externalStrokeColor": "#0000FF", "internalStrokeColor": "#00BFFF"};
+    var Joy3 = new JoyStick('joy3Div', joy3Param);
+
+    setInterval(function(){ doSend(Joy3.GetX() + " " +Joy2.GetY()); }, 50);
+
+</script>
