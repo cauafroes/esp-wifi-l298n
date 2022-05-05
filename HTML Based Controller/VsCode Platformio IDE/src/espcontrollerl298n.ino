@@ -5,13 +5,12 @@
 #include <WebSocketsServer.h>
 
 // Constants
-const char *ssid = "Servidor de bolso";
+const char *ssid = "esp";
 const char *password =  "12341234";
-const char *msg_toggle_led = "toggleLED";
-const char *msg_get_led = "getLEDState";
 const int dns_port = 53;
 const int http_port = 80;
 const int ws_port = 1337;
+
 // Motor A
 const int motor1Pin1 = 25; 
 const int motor1Pin2 = 33; 
@@ -32,10 +31,8 @@ AsyncWebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(1337);
 char msg_buf[10];
 char *strtokindex;
-int pot_x = 0;
-int pot_y = 0;
-float diff = 0;
-int velocidademotor1, velocidademotor2 = 0;
+int px, py, v1, v2 = 0;
+float d = 0;
 
 /***********************************************************
    Functions
@@ -43,12 +40,12 @@ int velocidademotor1, velocidademotor2 = 0;
 
 void moverRobo(){
   
-  velocidademotor1 = 0;
-  velocidademotor2 = 0;
+  v1 = 0;
+  v2 = 0;
   
   delay(20);
   
-  if (pot_y < 0) {
+  if (py < 0) {
     
     digitalWrite(motor1Pin1, HIGH);
     digitalWrite(motor1Pin2, LOW);
@@ -56,10 +53,10 @@ void moverRobo(){
     digitalWrite(motor2Pin2, LOW);
     
     //Aumenta a velocidade do motor
-    velocidademotor1 = map(pot_y, -10, -100, 150, 255);
-    velocidademotor2 = map(pot_y, -10, -100, 150, 255);
+    v1 = map(py, -10, -100, 150, 255);
+    v2 = map(py, -10, -100, 150, 255);
   }
-  else if (pot_y > 0) {
+  else if (py > 0) {
     
     digitalWrite(motor1Pin1, LOW);
     digitalWrite(motor1Pin2, HIGH);
@@ -67,32 +64,27 @@ void moverRobo(){
     digitalWrite(motor2Pin2, HIGH);
     
     // Aumenta a velocidade do motor
-    velocidademotor1 = map(pot_y, 10, 100, 143, 255);
-    velocidademotor2 = map(pot_y, 10, 100, 143, 255);
+    v1 = map(py, 10, 100, 143, 255);
+    v2 = map(py, 10, 100, 143, 255);
   }
     //Faz com que os motores fiquem parados caso o joystick esteje centralizado
     else {
-    velocidademotor1 = 0;
-    velocidademotor2 = 0;
+    v1 = 0;
+    v2 = 0;
   }
 
-  if (pot_x > 10){
-    diff = map(pot_x, 10, 100, 100, 80);
-    diff = diff/100;
-    velocidademotor1 = velocidademotor1 * diff;
-  }else if (pot_x < -10){
-    diff = map(pot_x, -10, -100, 100, 80);
-    diff = diff/100;
-    velocidademotor2 = velocidademotor2 * diff;
+  if (px > 10){
+    d = map(px, 10, 100, 100, 80);
+    d = d/100;
+    v1 = v1 * d;
+  }else if (px < -10){
+    d = map(px, -10, -100, 100, 80);
+    d = d/100;
+    v2 = v2 * d;
   }
 
-  Serial.print("velocidade motor 1: ");
-  Serial.print(velocidademotor1);
-  Serial.print("  2: ");
-  Serial.println(velocidademotor2);
-
-  ledcWrite(pwmChannel, velocidademotor1);
-  ledcWrite(pwmChannel2, velocidademotor2);
+  ledcWrite(pwmChannel, v1);
+  ledcWrite(pwmChannel2, v2);
 }
 
 // Callback: receiving any WebSocket message
@@ -124,15 +116,20 @@ void onWebSocketEvent(uint8_t client_num,
       // Print out raw message
       //Serial.printf("%s\n", payload);
     strtokindex = strtok((char*) payload, " ");
-    pot_x = atoi(strtokindex);
+    px = atoi(strtokindex);
     
     strtokindex = strtok(NULL, " ");
-    pot_y = atoi(strtokindex);
+    py = atoi(strtokindex);
     
+    Serial.print("velocidade motor 1: ");
+    Serial.print(v1);
+    Serial.print("  2: ");
+    Serial.println(v2);
+
 //    Serial.print("X: ");
-//    Serial.print(pot_x);
+//    Serial.print(px);
 //    Serial.print("  Y: ");
-//    Serial.println(pot_y);
+//    Serial.println(py);
     }
     break;
 
@@ -153,7 +150,7 @@ void onIndexRequest(AsyncWebServerRequest *request) {
   IPAddress remote_ip = request->client()->remoteIP();
   Serial.println("[" + remote_ip.toString() +
                  "] HTTP GET request of " + request->url());
-  request->send(SPIFFS, "/updated.html", "text/html");
+  request->send(SPIFFS, "/index.html", "text/html");
 }
 
 // Callback: send style sheet
